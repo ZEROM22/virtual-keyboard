@@ -161,7 +161,7 @@ let currentLayout = localStorage.getItem('language')
 // Текущий регистр
 let caseLayout = 'lowercase';
 // Текст в textarea
-const textareaText = '';
+let textareaText = '';
 
 // Создание div
 const { body } = document;
@@ -339,3 +339,167 @@ function functionKeyUp(key) {
 
 document.addEventListener('keydown', (event) => functionKeyDown(event.key));
 document.addEventListener('keyup', (event) => functionKeyUp(event.key));
+
+// Добавление символа в textarea
+// Отключаем ввода в textarea
+textarea.addEventListener('keydown', (event) => {
+  event.preventDefault();
+});
+
+const functionKeys = [
+  'Backspace',
+  'Tab',
+  'Delete',
+  'CapsLock',
+  'Enter',
+  'ShiftLeft',
+  'ShiftRight',
+  'ControlLeft',
+  'OSLeft',
+  'AltLeft',
+  'AltRight',
+  'ControlRight',
+];
+
+function textareaTextChange(pos, pos2, char) {
+  const newText = textareaText.split('');
+  newText.splice(pos, pos2 - pos, char);
+  return newText.join('');
+}
+
+function textareaUpdate(code, char) {
+  textarea.focus();
+
+  const pos = textarea.selectionStart;
+  const pos2 = textarea.selectionEnd;
+  if (!functionKeys.includes(code)) {
+    const newText = textareaTextChange(pos, pos2, char);
+    textareaText = newText;
+    textarea.value = newText;
+    textarea.setSelectionRange(pos + char.length, pos + char.length);
+    return;
+  }
+
+  if (code === 'Backspace') {
+    if (pos === pos2 && pos === 0) return;
+    if (pos !== pos2) {
+      const newText = textareaTextChange(pos, pos2, '');
+      textareaText = newText;
+      textarea.value = newText;
+      textarea.setSelectionRange(pos, pos);
+    } else {
+      const newText = textareaTextChange(pos - 1, pos2, '');
+      textareaText = newText;
+      textarea.value = newText;
+      textarea.setSelectionRange(pos - 1, pos - 1);
+    }
+    return;
+  }
+
+  if (code === 'Tab') {
+    const tab = '    ';
+    const newText = textareaTextChange(pos, pos2, tab);
+    textareaText = newText;
+    textarea.value = newText;
+    textarea.setSelectionRange(pos + tab.length, pos + tab.length);
+    return;
+  }
+
+  if (code === 'Delete') {
+    if (pos !== pos2) {
+      const newText = textareaTextChange(pos, pos2, '');
+      textareaText = newText;
+      textarea.value = newText;
+      textarea.setSelectionRange(pos, pos);
+    } else {
+      const newText = textareaTextChange(pos, pos2 + 1, '');
+      textareaText = newText;
+      textarea.value = newText;
+      textarea.setSelectionRange(pos, pos);
+    }
+    return;
+  }
+
+  if (code === 'Enter') {
+    const newText = textareaTextChange(pos, pos2, '\r');
+    textareaText = newText;
+    textarea.value = newText;
+    textarea.setSelectionRange(pos + char.length, pos + char.length);
+  }
+}
+
+// Отображение нажатой клавиши на физ. клавиатуре
+document.addEventListener('keydown', (event) => {
+  event.preventDefault(); // убираем события по умолчанию, так как далее используется метод focus()
+  const exception = ['Backspace', 'Tab', 'Delete', 'Enter'];
+  const key = document.getElementsByClassName(event.code)[0];
+  // Обрабатываем только клавиши с символами, нажатые с физ. клавиатуры.
+  // "функциональные" кнопки обрабатываем отдельно выше, исключение - Backspace, Tab, Delete, Enter
+  if (key) key.classList.add('pressed');
+  if (
+    (key && !functionKeys.includes(event.code))
+    || (key && exception.includes(event.code))
+  ) {
+    textareaUpdate(event.code, key.innerHTML);
+  }
+});
+document.addEventListener('keyup', (event) => {
+  const exception = ['Backspace', 'Tab', 'Delete', 'Enter'];
+  const key = document.getElementsByClassName(event.code)[0];
+  // Обрабатываем только клавиши с символами, нажатые с физ. клавиатуры.
+  // "функциональные" кнопки обрабатываем отдельно выше, исключение - Backspace, Tab, Delete, Enter
+  if (key) key.classList.remove('pressed');
+  if (
+    (key && !functionKeys.includes(event.code))
+    || (key && exception.includes(event.code))
+  ) {
+    key.classList.remove('pressed');
+  }
+});
+
+// Обработка нажатых с вирт. клавиатуры кнопок
+keyboard.addEventListener('click', (event) => {
+  if (event.target.classList.contains('keyboard__key')) {
+    textareaUpdate(event.target.id, event.target.innerHTML);
+  }
+});
+
+// Обработка некоторых "функциональных" кнопок, для которых требуется mousedown и mouseup события
+keyboard.addEventListener('mousedown', (event) => {
+  if (event.target.classList.contains('keyboard__key')) {
+    if (event.target.id === 'AltLeft' || event.target.id === 'AltRight') {
+      functionKeyDown('Alt');
+    }
+    if (
+      event.target.id === 'ControlLeft'
+      || event.target.id === 'ControlRight'
+    ) {
+      functionKeyDown('Control');
+    }
+    if (event.target.id === 'ShiftLeft' || event.target.id === 'ShiftRight') {
+      functionKeyDown('Shift');
+    }
+    if (event.target.id === 'CapsLock') {
+      functionKeyDown('CapsLock');
+    }
+  }
+});
+keyboard.addEventListener('mouseup', (event) => {
+  if (event.target.classList.contains('keyboard__key')) {
+    if (event.target.id === 'AltLeft' || event.target.id === 'AltRight') {
+      functionKeyUp('Alt');
+    }
+    if (
+      event.target.id === 'ControlLeft'
+      || event.target.id === 'ControlRight'
+    ) {
+      functionKeyUp('Control');
+    }
+    if (event.target.id === 'ShiftLeft' || event.target.id === 'ShiftRight') {
+      functionKeyUp('Shift');
+    }
+    if (event.target.id === 'CapsLock') {
+      functionKeyUp('CapsLock');
+    }
+  }
+});
