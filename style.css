@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  color: #ffffff;
+  background-color: #202020;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.textarea {
+  padding: 10px;
+  margin: 0;
+  font-size: 18px;
+  resize: none;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  row-gap: 5px;
+  justify-content: center;
+  padding: 10px;
+}
+
+.keyboard__row {
+  display: flex;
+  column-gap: 5px;
+}
+
+.keyboard__key {
+  display: flex;
+  justify-content: center;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.Backspace,
+.ShiftLeft,
+.Space {
+  flex-grow: 1;
+}
+
+.CapsLock {
+  flex-grow: 1;
+  padding: 0 10px;
+}
+
+.Enter {
+  flex-grow: 2;
+}
+
+.ShiftRight {
+  width: 71.5px;
+}
