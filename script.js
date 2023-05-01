@@ -155,11 +155,11 @@ const keyboardLayouts = {
 };
 
 // Текущая раскладка
-const currentLayout = localStorage.getItem('language')
+let currentLayout = localStorage.getItem('language')
   ? localStorage.getItem('language')
   : 'en';
 // Текущий регистр
-const caseLayout = 'lowercase';
+let caseLayout = 'lowercase';
 // Текст в textarea
 const textareaText = '';
 
@@ -208,3 +208,134 @@ keyboardLayouts[currentLayout].forEach((row) => {
 
 textarea.style.width = `${keyboard.offsetWidth - 25}px`;
 textarea.style.height = '256px';
+
+// other
+const description = document.createElement('p');
+description.className = 'info';
+description.innerHTML = 'Клавиатура создана в операционной системе Windows<br>Для переключения языка комбинация:  Ctrl + Alt';
+container.appendChild(description);
+
+// Обновление клавиатуры
+let isAltPressed = false;
+let isCtrlPressed = false;
+let isShiftPressed = false;
+let isCapsLockPressed = false;
+
+function updateKeyboard(fn) {
+  let row = 0;
+  [].forEach.call(keyboard.children, (keyboardRow) => {
+    let key = 0;
+    [].forEach.call(keyboardRow.children, (keyboardKey) => {
+      fn(keyboardKey, row, key);
+      key += 1;
+    });
+    row += 1;
+  });
+}
+
+function altControlPressed() {
+  currentLayout = currentLayout === 'en' ? 'ru' : 'en';
+  localStorage.setItem('language', currentLayout);
+  const CharChangeCase = (keyboardKey, row, key) => {
+    if (isShiftPressed) {
+      if (!Number.isNaN(keyboardLayouts[currentLayout][row][key].lowercase)) {
+        keyboardKey.innerText = keyboardLayouts[currentLayout][row][key].uppercase;
+      } else {
+        keyboardKey.innerText = keyboardLayouts[currentLayout][row][key][caseLayout];
+      }
+    } else if (!Number.isNaN(keyboardLayouts[currentLayout][row][key].lowercase)) {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key].lowercase;
+    } else {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key][caseLayout];
+    }
+  };
+  updateKeyboard(CharChangeCase);
+}
+
+function shiftPressed() {
+  caseLayout = caseLayout === 'lowercase' ? 'uppercase' : 'lowercase';
+  const fullChangeCase = (keyboardKey, row, key) => {
+    if (/[^a-zA-Zа-яёА-ЯЁ]/.test(keyboardKey.innerText)) {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key].uppercase;
+    } else {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key][caseLayout];
+    }
+  };
+  updateKeyboard(fullChangeCase);
+}
+
+function shiftReleased() {
+  caseLayout = caseLayout === 'lowercase' ? 'uppercase' : 'lowercase';
+  const fullChangeCase = (keyboardKey, row, key) => {
+    if (/[^a-zA-Zа-яёА-ЯЁ]/.test(keyboardKey.innerText)) {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key].lowercase;
+    } else {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key][caseLayout];
+    }
+  };
+  updateKeyboard(fullChangeCase);
+}
+
+function capsLockPressed() {
+  caseLayout = caseLayout === 'lowercase' ? 'uppercase' : 'lowercase';
+  const CharChangeCase = (keyboardKey, row, key) => {
+    if (!/[^a-zA-Zа-яёА-ЯЁ]/.test(keyboardKey.innerText)) {
+      keyboardKey.innerText = keyboardLayouts[currentLayout][row][key][caseLayout];
+    }
+  };
+  updateKeyboard(CharChangeCase);
+}
+
+// Обработка комбинаций клавиш
+function functionKeyDown(key) {
+  // регистр и раскладку меняем только при нажатии конкретной клавиши, а не в слушателе
+  if (key === 'Alt') {
+    isAltPressed = true;
+  }
+
+  if (key === 'Control') {
+    isCtrlPressed = true;
+    if (isAltPressed && isCtrlPressed) {
+      altControlPressed();
+    }
+  }
+
+  if (key === 'Shift') {
+    isShiftPressed = true;
+    if (isShiftPressed) {
+      shiftPressed();
+    }
+  }
+
+  if (key === 'CapsLock') {
+    if (!isCapsLockPressed) {
+      capsLockPressed();
+      isCapsLockPressed = true;
+    }
+  }
+}
+
+function functionKeyUp(key) {
+  // регистр и раскладку меняем только при нажатии конкретной клавиши, а не в слушателе
+  if (key === 'Alt') {
+    isAltPressed = false;
+  }
+
+  if (key === 'Control') {
+    isCtrlPressed = false;
+  }
+
+  if (key === 'Shift') {
+    isShiftPressed = false;
+    if (!isShiftPressed) {
+      shiftReleased();
+    }
+  }
+
+  if (key === 'CapsLock') {
+    isCapsLockPressed = false;
+  }
+}
+
+document.addEventListener('keydown', (event) => functionKeyDown(event.key));
+document.addEventListener('keyup', (event) => functionKeyUp(event.key));
