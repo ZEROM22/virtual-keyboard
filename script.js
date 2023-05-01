@@ -66,7 +66,7 @@ const keyboardLayouts = {
     ],
     [
       { lowercase: 'Ctrl', uppercase: 'Ctrl', class: 'ControlLeft' },
-      { lowercase: 'Win', uppercase: 'Win', class: 'OSLeft' },
+      { lowercase: 'Win', uppercase: 'Win', class: 'MetaLeft' },
       { lowercase: 'Alt', uppercase: 'Alt', class: 'AltLeft' },
       { lowercase: ' ', uppercase: ' ', class: 'Space' },
       { lowercase: 'Alt', uppercase: 'Alt', class: 'AltRight' },
@@ -142,7 +142,7 @@ const keyboardLayouts = {
     ],
     [
       { lowercase: 'Ctrl', uppercase: 'Ctrl', class: 'ControlLeft' },
-      { lowercase: 'Win', uppercase: 'Win', class: 'OSLeft' },
+      { lowercase: 'Win', uppercase: 'Win', class: 'MetaLeft' },
       { lowercase: 'Alt', uppercase: 'Alt', class: 'AltLeft' },
       { lowercase: ' ', uppercase: ' ', class: 'Space' },
       { lowercase: 'Alt', uppercase: 'Alt', class: 'AltRight' },
@@ -355,7 +355,7 @@ const functionKeys = [
   'ShiftLeft',
   'ShiftRight',
   'ControlLeft',
-  'OSLeft',
+  'MetaLeft',
   'AltLeft',
   'AltRight',
   'ControlRight',
